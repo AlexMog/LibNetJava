@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
 
 public class TcpSocket extends Socket {
@@ -20,9 +21,11 @@ public class TcpSocket extends Socket {
 		super(host, port);
 	}
 	
-	// Didn't work :( don't know why...
+	// IT WORKS! Need improuvement...
 	public void send(List<Byte> datas) throws IOException {
 		byte[] bi = ByteBuffer.allocate(8).putLong(datas.size()).array();
+		long size = ByteBuffer.wrap(bi).order(ByteOrder.LITTLE_ENDIAN).getLong();
+		bi = ByteBuffer.allocate(8).putLong(size).array();
 		if (os == null)
 			os = this.getOutputStream();
 		byte[] finalSend = new byte[datas.size() + 8];
@@ -35,5 +38,6 @@ public class TcpSocket extends Socket {
 			}
 		}
 		os.write(finalSend);
+		os.flush();
 	}
 }
